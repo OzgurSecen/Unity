@@ -1,0 +1,68 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Threading;
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    Rigidbody2D rgb;
+    Vector3 velocity;
+    float speedAmount = 3f;
+    float jumpAmount = 3f;
+    public Animator animator;
+    // Start is called before the first frame update
+    void Start()
+    {
+        rgb = GetComponent<Rigidbody2D>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        velocity = new Vector3(Input.GetAxis("Horizontal"), 0f);
+        transform.position += velocity * speedAmount * Time.deltaTime;
+        animator.SetFloat("Speed", Mathf.Abs(Input.GetAxis("Horizontal")));
+        if (Input.GetKey(KeyCode.Space) && !animator.GetBool("playerAttack"))
+        {
+            animator.SetBool("playerAttack", true);
+        }
+
+        if (Input.GetKey(KeyCode.W) && !animator.GetBool("Jumping"))
+        {
+            rgb.AddForce(Vector3.up * jumpAmount, ForceMode2D.Impulse);
+            animator.SetBool("Jumping", true);
+        }
+
+        if (animator.GetBool("Jumping") && Mathf.Approximately(rgb.velocity.y, 0))
+        {
+            animator.SetBool("Jumping", false);
+        }
+        if (Input.GetAxisRaw("Horizontal") == -1)
+        {
+            transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+        else if (Input.GetAxisRaw("Horizontal") == 1)
+        {
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        }
+    }
+    public void AttackStop()
+    {
+        animator.SetBool("playerAttack", false);
+    }
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.gameObject.name == "Zemin")
+            {
+                animator.SetBool("Jumping", false);
+            }
+        }
+        private void onCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.name == ("Zemin"))
+            {
+            animator.SetBool("Jumping", true);
+        }
+    }
+}
